@@ -1,9 +1,9 @@
 #!/bin/bash
 #配置信息
 PORT=7777
-ZK1="zookeeper://zk01-test.chj.cloud:10311"
-ZK2="zookeeper://zk02-test.chj.cloud:10311"
-ZK3="zookeeper://zk03-test.chj.cloud:10311"
+ZK1=
+ZK2=
+ZK3=
 PASSWORD=ROOT
 memory=512m
 jar=bin.jar
