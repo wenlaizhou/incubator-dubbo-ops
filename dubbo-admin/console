@@ -1,0 +1,57 @@
+#!/bin/bash
+#配置信息
+PORT=7777
+ZK1="zookeeper://zk01-test.chj.cloud:10311"
+ZK2="zookeeper://zk02-test.chj.cloud:10311"
+ZK3="zookeeper://zk03-test.chj.cloud:10311"
+PASSWORD=ROOT
+memory=512m
+jar=bin.jar
+#############################################################
+#服务配置
+JAVA_OPS="-server -d64 -Xmx${memory} -Xms${memory} -verbose:gc"
+JAVA_OPS="${JAVA_OPS} -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
+JAVA_OPS="${JAVA_OPS} -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -XX:+PrintCommandLineFlags -XX:+DisableExplicitGC"
+JAVA_OPS="${JAVA_OPS} -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -Xloggc:gc.log"
+JAVA_OPS="${JAVA_OPS} -Djava.security.egd=file:/dev/./urandom"
+#############################################################
+
+CMD="java ${JAVA_OPS} -Ddubbo.registry.address1=${ZK1} -Ddubbo.registry.address2=${ZK2} -Ddubbo.registry.address3=${ZK3} -Droot.password=${PASSWORD} -Dport=${PORT} -jar ${jar}"
+
+#函数信息
+function fnstart() {
+    nohup ${CMD} > console.log 2>&1 &
+    processId=$!
+    echo ${processId} > pid
+    echo "启动完毕"
+    echo "pid 为 ${processId}"
+}
+
+function fnstop() {
+    processId=$(cat pid)
+    echo "开始停止服务, pid 为 : ${processId}"
+    kill ${processId}
+    echo "停止完毕"
+}
+
+function fnrestart() {
+    fnstop
+    fnstart
+}
+#####################################################################
+
+case $1 in
+        start)
+            fnstart
+    ;;
+
+        stop)
+            fnstop
+    ;;
+        restart)
+            fnrestart
+    ;;
+        install)
+            fninstall
+    ;;
+esac
